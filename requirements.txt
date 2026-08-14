@@ -1,0 +1,10 @@
+pandas
+numpy
+tabulate
+yfinance
+python-dotenv
+langchain
+langchain-openai
+langchain-core
+streamlit
+rich
