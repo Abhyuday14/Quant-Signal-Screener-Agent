@@ -5,6 +5,7 @@ from langchain_core.tools import tool
 
 from tools.data import get_price_history
 from tools.indicators import compute_indicators
+from tools.resolver import resolve_ticker
 from tools.screener import screen_watchlist
 
 
@@ -14,37 +15,45 @@ def _df_to_markdown(df: pd.DataFrame, max_rows: int = 15) -> str:
 
 @tool
 def price_history_tool(ticker: str, period: str = "6mo", interval: str = "1d") -> str:
-    """Get recent OHLCV price history for a single stock ticker.
+    """Get recent OHLCV price history for a single stock.
 
     Args:
-        ticker: Symbol, e.g. "AAPL".
+        ticker: Symbol or company name, e.g. "AAPL" or "Apple". Bare names
+            resolve to their NSE/BSE listing by default when the company
+            trades in India (e.g. "TCS", "Reliance", "HDFC Bank").
         period: Lookback window, e.g. "1mo", "6mo", "1y", "5y".
         interval: Bar size, e.g. "1d", "1h", "1wk".
     """
-    df = get_price_history(ticker, period=period, interval=interval)
-    return _df_to_markdown(df)
+    resolved = resolve_ticker(ticker)
+    df = get_price_history(resolved, period=period, interval=interval)
+    return f"Resolved '{ticker}' -> {resolved}\n\n" + _df_to_markdown(df)
 
 
 @tool
 def indicators_tool(ticker: str, period: str = "6mo", interval: str = "1d") -> str:
-    """Compute technical indicators (SMA, EMA, MACD, RSI, Bollinger Bands) for a ticker.
+    """Compute technical indicators (SMA, EMA, MACD, RSI, Bollinger Bands) for a stock.
 
     Args:
-        ticker: Symbol, e.g. "AAPL".
+        ticker: Symbol or company name, e.g. "AAPL" or "Apple". Bare names
+            resolve to their NSE/BSE listing by default when the company
+            trades in India (e.g. "TCS", "Reliance", "HDFC Bank").
         period: Lookback window, e.g. "1mo", "6mo", "1y", "5y".
         interval: Bar size, e.g. "1d", "1h", "1wk".
     """
-    df = get_price_history(ticker, period=period, interval=interval)
+    resolved = resolve_ticker(ticker)
+    df = get_price_history(resolved, period=period, interval=interval)
     df = compute_indicators(df)
-    return _df_to_markdown(df)
+    return f"Resolved '{ticker}' -> {resolved}\n\n" + _df_to_markdown(df)
 
 
 @tool
 def screener_tool(tickers: list[str], period: str = "6mo", interval: str = "1d") -> str:
-    """Screen a list of stock tickers and return a BUY/SELL/HOLD signal for each.
+    """Screen a list of stocks and return a BUY/SELL/HOLD signal for each.
 
     Args:
-        tickers: Symbols to screen, e.g. ["AAPL", "MSFT"].
+        tickers: Symbols or company names, e.g. ["RELIANCE", "TCS", "Infosys"]
+            or ["AAPL", "MSFT"]. Bare names resolve to their NSE/BSE listing
+            by default when the company trades in India.
         period: Lookback window, e.g. "1mo", "6mo", "1y", "5y".
         interval: Bar size, e.g. "1d", "1h", "1wk".
     """

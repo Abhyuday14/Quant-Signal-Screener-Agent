@@ -7,7 +7,7 @@ from rich.table import Table
 
 from tools.screener import screen_watchlist
 
-DEFAULT_WATCHLIST = ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN"]
+DEFAULT_WATCHLIST = ["RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS", "ICICIBANK.NS"]
 
 
 def parse_args() -> argparse.Namespace:
@@ -16,7 +16,7 @@ def parse_args() -> argparse.Namespace:
         "tickers",
         nargs="*",
         default=DEFAULT_WATCHLIST,
-        help=f"Tickers to screen (default: {' '.join(DEFAULT_WATCHLIST)})",
+        help=f"Tickers or company names to screen (default: {' '.join(DEFAULT_WATCHLIST)})",
     )
     parser.add_argument("--period", default="6mo", help="Lookback window, e.g. 1mo, 6mo, 1y (default: 6mo)")
     parser.add_argument("--interval", default="1d", help="Bar size, e.g. 1d, 1h, 1wk (default: 1d)")

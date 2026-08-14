@@ -24,4 +24,9 @@ def get_price_history(ticker: str, period: str = "6mo", interval: str = "1d") ->
 
     df = df[["Open", "High", "Low", "Close", "Volume"]].copy()
     df.index.name = "Date"
+    # Drop trailing bars for sessions still in progress (yfinance sometimes
+    # returns a row with volume but no OHLC for the current, unsettled bar).
+    df = df.dropna(subset=["Close"])
+    if df.empty:
+        raise ValueError(f"No settled price data for '{ticker}' (period={period}, interval={interval})")
     return df

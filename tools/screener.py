@@ -4,6 +4,7 @@ import pandas as pd
 
 from tools.data import get_price_history
 from tools.indicators import compute_indicators
+from tools.resolver import resolve_ticker
 
 
 def _score_row(row: pd.Series) -> tuple[int, list[str]]:
@@ -74,15 +75,17 @@ def screen_watchlist(
         signal and the failure reason instead.
     """
     rows = []
-    for ticker in tickers:
+    for raw in tickers:
+        resolved = raw.upper()
         try:
-            df = get_price_history(ticker, period=period, interval=interval)
+            resolved = resolve_ticker(raw)
+            df = get_price_history(resolved, period=period, interval=interval)
             df = compute_indicators(df)
             latest = df.iloc[-1]
             score, reasons = _score_row(latest)
             rows.append(
                 {
-                    "ticker": ticker.upper(),
+                    "ticker": resolved,
                     "close": round(float(latest["Close"]), 2),
                     "signal": _verdict(score),
                     "score": score,
@@ -92,7 +95,7 @@ def screen_watchlist(
         except Exception as exc:  # noqa: BLE001 - surface per-ticker failures, don't abort the batch
             rows.append(
                 {
-                    "ticker": ticker.upper(),
+                    "ticker": resolved,
                     "close": None,
                     "signal": "ERROR",
                     "score": 0,

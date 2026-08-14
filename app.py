@@ -10,7 +10,12 @@ st.title("Quant Signal Screener")
 
 with st.sidebar:
     st.header("Watchlist")
-    tickers_input = st.text_area("Tickers (comma-separated)", value="AAPL, MSFT, NVDA, GOOGL, AMZN")
+    tickers_input = st.text_area(
+        "Tickers or company names (comma-separated)",
+        value="RELIANCE.NS, TCS.NS, INFY.NS, HDFCBANK.NS, ICICIBANK.NS",
+        help='Company names work too, e.g. "Reliance, TCS, Infosys" — '
+        "they resolve to their NSE/BSE listing by default.",
+    )
     period = st.selectbox("Period", ["1mo", "3mo", "6mo", "1y", "2y", "5y"], index=2)
     interval = st.selectbox("Interval", ["1d", "1h", "1wk"], index=0)
     run_clicked = st.button("Run screener", type="primary")
@@ -36,7 +41,10 @@ else:
 
 st.divider()
 st.header("Ask the agent")
-st.caption("Chat with an LLM agent that can pull price history, compute indicators, and screen tickers on its own.")
+st.caption(
+    "Chat with an LLM agent that can pull price history, compute indicators, and screen "
+    "tickers on its own. Company names work too, e.g. \"What's the RSI on Tata Motors?\""
+)
 
 if "agent" not in st.session_state:
     try:
